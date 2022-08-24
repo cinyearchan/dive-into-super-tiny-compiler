@@ -28,6 +28,7 @@ export type ChildNode =
 export interface RootNode extends Node {
   type: NodeTypes.Program;
   body: ChildNode[];
+  context?: ChildNode[];
 }
 
 export interface NumberLiteralNode extends Node {
@@ -44,4 +45,19 @@ export interface CallExpressionNode extends Node {
   type: NodeTypes.CallExpression;
   name: string;
   params: ChildNode[];
+  context?: ChildNode[];
+}
+
+export function createStringLiteralNode(value): StringLiteralNode {
+  return {
+    type: NodeTypes.StringLiteral,
+    value,
+  };
+}
+
+export function createRootNode(): RootNode {
+  return {
+    type: NodeTypes.Program,
+    body: [],
+  };
 }

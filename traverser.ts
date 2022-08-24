@@ -1,8 +1,11 @@
-import { NodeTypes, RootNode, ChildNode } from "./ast";
+import { NodeTypes, RootNode, ChildNode, CallExpressionNode } from "./ast";
+
+type ParentNode = RootNode | CallExpressionNode | undefined;
+type MethodFn = (node: RootNode | ChildNode, parent: ParentNode) => void;
 
 interface VisitorOption {
-  enter(node: RootNode | ChildNode, parent: RootNode | ChildNode | undefined);
-  exit(node: RootNode | ChildNode, parent: RootNode | ChildNode | undefined);
+  enter: MethodFn;
+  exit?: MethodFn;
 }
 
 interface Visitor {
@@ -16,19 +19,13 @@ export function traverser(rootNode: RootNode, visitor: Visitor) {
   // 1. 深度优先遍历
   // 2. visitor
 
-  function traverseArray(
-    array: ChildNode[],
-    parent: RootNode | ChildNode | undefined
-  ) {
+  function traverseArray(array: ChildNode[], parent: ParentNode) {
     array.forEach((node) => {
       traverseNode(node, parent);
     });
   }
 
-  function traverseNode(
-    node: ChildNode | RootNode,
-    parent?: RootNode | ChildNode
-  ) {
+  function traverseNode(node: ChildNode | RootNode, parent?: ParentNode) {
     const visitorObj = visitor[node.type];
     // enter
     if (visitorObj) {
@@ -49,7 +46,7 @@ export function traverser(rootNode: RootNode, visitor: Visitor) {
     }
 
     // exit
-    if (visitorObj) {
+    if (visitorObj && visitorObj.exit) {
       visitorObj.exit(node, parent);
     }
   }
